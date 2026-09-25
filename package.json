@@ -1,0 +1,16 @@
+{
+  "name": "@eon-stream/spec",
+  "version": "0.0.0",
+  "private": true,
+  "description": "EON Stream contracts: addon API, manifest schemas, package format, signing. Validation tooling only -- the contracts themselves are the JSON Schema and Markdown files.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "validate": "node tools/validate.mjs",
+    "test": "npm run validate"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

@@ -1,0 +1,26 @@
+# Node tooling (schema validation, docs build)
+node_modules/
+package-lock.json.bak
+/dist/
+/build/
+/.cache/
+
+# Python tooling (if used for validation scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local scratch
+/scratch/
+/tmp/
+*.local.*

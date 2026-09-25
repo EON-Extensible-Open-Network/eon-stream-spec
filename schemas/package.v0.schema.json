@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.eonstream.org/schemas/package.v0.schema.json",
+  "title": "EON Stream material package descriptor (v0 - UNSTABLE)",
+  "description": "Descriptor at the root of a material package. One format for both builds: a package produced in EON Edu opens in EON Stream and the reverse, subject to licence (madde 28). v0 is unstable.",
+  "type": "object",
+  "required": ["schemaVersion", "id", "title", "version", "hierarchy", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 0 },
+    "id": { "type": "string", "maxLength": 128 },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "maxLength": 2048 },
+    "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" },
+    "mode": {
+      "description": "Viewing mode chosen by the creator: 'sequence' walks items in order, 'free' lets the reader open anything. Sections may override this (madde 16b).",
+      "enum": ["sequence", "free"],
+      "default": "free"
+    },
+    "hierarchy": {
+      "description": "course -> unit -> topic, modelled on how teaching material is actually organised (madde 16a).",
+      "type": "object",
+      "required": ["course"],
+      "additionalProperties": false,
+      "properties": {
+        "course": { "type": "string", "maxLength": 128 },
+        "units": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "maxLength": 64 },
+              "title": { "type": "string", "maxLength": 200 },
+              "mode": { "enum": ["sequence", "free"] },
+              "topics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "title"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": { "type": "string", "maxLength": 64 },
+                    "title": { "type": "string", "maxLength": 200 },
+                    "itemRefs": { "type": "array", "items": { "type": "string", "maxLength": 64 } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "items": {
+      "description": "Files carried by the package. Type is determined from content (MIME / magic bytes), never from the extension (madde 15b).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "path", "mediaType", "sizeBytes", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "maxLength": 64 },
+          "path": { "type": "string", "maxLength": 512, "pattern": "^(?!/)(?!.*\\.\\.).+$" },
+          "mediaType": { "type": "string", "maxLength": 128 },
+          "sizeBytes": { "type": "integer", "minimum": 0 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "title": { "type": "string", "maxLength": 200 },
+          "requiresModule": { "type": "string", "maxLength": 128 },
+          "accessibility": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subtitlePath": { "type": "string", "maxLength": 512 },
+              "transcriptPath": { "type": "string", "maxLength": 512 },
+              "textAlternative": { "type": "string", "maxLength": 2048 }
+            }
+          }
+        }
+      }
+    },
+    "mirrors": {
+      "description": "Additional HTTPS sources, used as web seeds (BEP 19). Present in v0 on purpose: without it, distribution dies when the publisher closes the application (madde 15d, 16g).",
+      "type": "array",
+      "maxItems": 8,
+      "items": { "type": "string", "format": "uri", "pattern": "^https://" }
+    },
+    "license": {
+      "description": "SPDX identifier. Recommended default for material is CC-BY-SA-4.0 (madde 16e). Governs whether EON Stream may republish an institutional package publicly (madde 28a).",
+      "type": "string",
+      "maxLength": 64
+    },
+    "sources": {
+      "description": "Attribution for third-party material included in the package.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string", "maxLength": 256 },
+          "url": { "type": "string", "format": "uri", "maxLength": 2048 },
+          "license": { "type": "string", "maxLength": 64 }
+        }
+      }
+    },
+    "education": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gradeLevels": { "type": "array", "items": { "type": "integer", "minimum": 0, "maximum": 13 } },
+        "subjects": { "type": "array", "items": { "type": "string", "maxLength": 64 } },
+        "curriculum": { "type": "string", "maxLength": 64 }
+      }
+    },
+    "origin": {
+      "description": "Marks an institutional package (madde 28a). Progress, identity and institution data are never embedded in a package (madde 28b) - there is deliberately no field for them.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["personal", "institution"] },
+        "institutionSigned": { "type": "boolean" }
+      }
+    },
+    "signature": { "type": ["object", "null"] }
+  }
+}

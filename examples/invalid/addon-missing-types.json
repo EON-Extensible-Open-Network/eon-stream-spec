@@ -1,0 +1,7 @@
+{
+  "$comment": "MUST FAIL: 'types' is required.",
+  "id": "community.example.broken",
+  "version": "1.0.0",
+  "name": "Broken Addon",
+  "resources": ["catalog"]
+}

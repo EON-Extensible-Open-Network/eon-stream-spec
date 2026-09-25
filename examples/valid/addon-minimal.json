@@ -1,0 +1,11 @@
+{
+  "id": "community.example.catalog",
+  "version": "1.0.0",
+  "name": "Example Catalog",
+  "description": "Smallest manifest that a EON Stream client accepts. Valid in Stremio too.",
+  "resources": ["catalog", "meta"],
+  "types": ["movie", "series"],
+  "catalogs": [
+    { "type": "movie", "id": "example-top", "name": "Top Movies" }
+  ]
+}

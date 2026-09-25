@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.eonstream.org/schemas/addon-manifest.v0.schema.json",
+  "title": "EON Stream remote addon manifest (v0 — UNSTABLE)",
+  "description": "Manifest of a remote addon: an independent HTTP service returning JSON. It never runs code on the user's device (madde 4). This schema tracks the Stremio addon manifest so that existing addons validate unchanged; EON Stream's own additions live under the reserved 'eon' key and are always optional, so a Stremio client can ignore them and an addon stays usable in both. v0 is unstable.",
+  "type": "object",
+  "required": ["id", "version", "name", "resources", "types"],
+  "additionalProperties": true,
+  "$comment": "additionalProperties is intentionally true: Stremio may add fields, and rejecting an addon over an unknown key would break compatibility — which is the whole point of this file.",
+  "properties": {
+    "id": {
+      "description": "Reverse-DNS identifier, immutable for the addon's life.",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "examples": ["community.example.catalog"]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-.]+)?$"
+    },
+    "name": { "type": "string", "minLength": 1, "maxLength": 96 },
+    "description": { "type": "string", "maxLength": 1024 },
+    "resources": {
+      "description": "Which endpoints the addon serves. A bare string means the resource applies to every declared type; the object form narrows it.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "enum": ["catalog", "meta", "stream", "subtitles", "addon_catalog"] },
+          {
+            "type": "object",
+            "required": ["name", "types"],
+            "properties": {
+              "name": { "enum": ["catalog", "meta", "stream", "subtitles", "addon_catalog"] },
+              "types": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+              "idPrefixes": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        ]
+      }
+    },
+    "types": {
+      "description": "Content types served. 'movie', 'series', 'channel', 'tv' and 'other' are the Stremio set; EON Stream adds 'file', 'music' and 'package' for its own module kinds. An unknown type is not an error — a client ignores what it cannot display.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "maxLength": 32 }
+    },
+    "catalogs": {
+      "description": "Browsable catalogues. Required in practice when 'catalog' is in resources; an empty array is valid and means the addon serves no browsable catalogue.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": { "type": "string", "maxLength": 32 },
+          "id": { "type": "string", "maxLength": 128 },
+          "name": { "type": "string", "maxLength": 96 },
+          "extra": {
+            "description": "Supported query parameters: search, genre, skip, and addon-defined ones.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string", "maxLength": 64 },
+                "isRequired": { "type": "boolean" },
+                "options": { "type": "array", "items": { "type": "string" } },
+                "optionsLimit": { "type": "integer", "minimum": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "idPrefixes": {
+      "description": "Id prefixes the addon can answer for, e.g. 'tt' for IMDb ids. Used to avoid pointless requests.",
+      "type": "array",
+      "items": { "type": "string", "maxLength": 32 }
+    },
+    "addonCatalogs": { "type": "array", "items": { "type": "object" } },
+    "background": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "logo": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "contactEmail": { "type": "string", "maxLength": 256 },
+    "behaviorHints": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "adult": { "type": "boolean" },
+        "p2p": { "type": "boolean" },
+        "configurable": { "type": "boolean" },
+        "configurationRequired": { "type": "boolean" }
+      }
+    },
+
+    "eon": {
+      "description": "EON Stream extensions. Entirely optional: a Stremio client ignores this key, and a EON Stream client treats a missing key as 'not provided'. Nothing here may be required for basic playback, or two-way compatibility is lost.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "minApi": {
+          "description": "Oldest EON Stream addon API version this addon works against.",
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?$"
+        },
+        "maxApi": {
+          "description": "Newest major version the addon has been tested against. A client beyond this range still loads the addon but may warn.",
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?$"
+        },
+        "mirrors": {
+          "description": "Additional HTTP sources for content the addon distributes itself, used as web seeds (BEP 19) so distribution survives the publisher going offline (madde 15d). HTTPS only.",
+          "type": "array",
+          "maxItems": 8,
+          "items": { "type": "string", "format": "uri", "pattern": "^https://" }
+        },
+        "license": {
+          "description": "SPDX identifier for content the addon serves itself. Ignored when the addon only points at third-party sources.",
+          "type": "string",
+          "maxLength": 64
+        },
+        "price": {
+          "description": "Reserved. No payment flow exists and none is implemented (madde 10). Present so the format need not be widened later.",
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "properties": {
+            "amount": { "type": "number", "minimum": 0 },
+            "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+            "model": { "enum": ["one-time", "subscription"] }
+          }
+        },
+        "signature": {
+          "description": "Detached signature, for addons distributed through the marketplace rather than added by URL. See docs/signing-and-revocation.md.",
+          "type": ["object", "null"]
+        },
+        "accessibility": {
+          "description": "What accessibility features the addon's own content provides (madde 35). Declaring nothing is honest; declaring falsely is a review finding.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "subtitles": { "type": "boolean" },
+            "transcripts": { "type": "boolean" },
+            "audioDescription": { "type": "boolean" }
+          }
+        },
+        "education": {
+          "description": "Curriculum metadata, so that material can be found the way a teacher searches for it — '9. sınıf fizik' (madde 16a).",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "gradeLevels": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 0, "maximum": 13 }
+            },
+            "subjects": { "type": "array", "items": { "type": "string", "maxLength": 64 } },
+            "curriculum": {
+              "description": "Curriculum the metadata is aligned to, when it is aligned to one.",
+              "type": "string",
+              "maxLength": 64,
+              "examples": ["meb-2024"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

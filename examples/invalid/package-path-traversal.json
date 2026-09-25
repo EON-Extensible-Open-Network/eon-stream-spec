@@ -1,0 +1,17 @@
+{
+  "$comment": "MUST FAIL: item path escapes the package root. Directory traversal in a package is a security issue (see SECURITY.md scope), so the schema rejects it before any extraction code runs.",
+  "schemaVersion": 0,
+  "id": "org.example.pkg",
+  "title": "Traversal attempt",
+  "version": "1.0.0",
+  "hierarchy": { "course": "Test" },
+  "items": [
+    {
+      "id": "i1",
+      "path": "../../etc/passwd",
+      "mediaType": "text/plain",
+      "sizeBytes": 10,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "community.example.lessons",
+  "version": "0.3.1",
+  "name": "Open Physics Lessons",
+  "description": "Openly licensed physics material. Demonstrates every EON Stream extension.",
+  "resources": ["catalog", "meta", "stream", "subtitles"],
+  "types": ["movie", "package"],
+  "catalogs": [
+    {
+      "type": "package",
+      "id": "physics-9",
+      "name": "Grade 9 Physics",
+      "extra": [
+        { "name": "search" },
+        { "name": "genre", "options": ["mechanics", "optics", "thermodynamics"] }
+      ]
+    }
+  ],
+  "idPrefixes": ["opl:"],
+  "contactEmail": "addon@example.org",
+  "behaviorHints": { "adult": false, "p2p": false, "configurable": false },
+  "eon": {
+    "minApi": "0.1",
+    "maxApi": "0",
+    "mirrors": ["https://mirror.example.org/opl/"],
+    "license": "CC-BY-SA-4.0",
+    "price": null,
+    "signature": null,
+    "accessibility": { "subtitles": true, "transcripts": true, "audioDescription": false },
+    "education": {
+      "gradeLevels": [9],
+      "subjects": ["fizik"],
+      "curriculum": "meb-2024"
+    }
+  }
+}
