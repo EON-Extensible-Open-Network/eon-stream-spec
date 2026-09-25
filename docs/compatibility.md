@@ -44,3 +44,49 @@ blocks a release; it exists to notice ecosystem drift early.
 Open an issue with the addon's manifest URL, its version, the failing request, and what
 Stremio returns for the same request. If the addon is in a category above, say why you
 think it should still work.
+
+## Verified against real addons
+
+The protocol client in `eon-stream-core` was exercised end to end against live
+addons. Recorded here because "it should work" and "it works" are different
+claims.
+
+| Addon | Id | What was exercised |
+|---|---|---|
+| Cinemeta | `com.linvo.cinemeta` | manifest, 8 catalogues, catalogue paging, `search=` extra, movie `meta`, series `meta` with seasons and episodes |
+| OpenSubtitles v3 | `org.stremio.opensubtitlesv3` | manifest, `subtitles` for a movie (38 tracks) |
+
+Both are legal, first-party addons. No addon that provides infringing content is
+used in development or in the suite, and none ever ships with the application
+(madde 9, 29).
+
+## Laxity a correct reader has to allow
+
+Two things real addons do that a strict implementation would reject. Both are
+compatibility requirements, not bugs in the addons.
+
+**`null` where an array belongs.** Cinemeta sends `"videos": null`,
+`"genres": null` and similar on some items. A JSON library's "use the default
+when the field is missing" behaviour does **not** cover an explicit `null`, so a
+strict reader refuses the single most widely used addon there is. Every
+collection field must accept absent, `null`, or a value.
+
+The line not to cross: a value of the **wrong type** is still an error. Being
+forgiving about `null` is compatibility; guessing at malformed data would be
+hiding bugs.
+
+**Numbers and strings for the same field.** `imdbRating` and `releaseInfo` arrive
+as either. Read them as text and do not parse unless the value is actually
+needed as a number.
+
+## Where the credentials are
+
+An addon address can be `https://host/c/<token>/manifest.json` — the
+configuration credential is **in the path**, not in a query string or a header.
+
+The consequence is easy to get wrong: "do not log the URL" is not enough,
+because logging the *path* leaks exactly the same secret. Error messages carry
+neither. In `eon-stream-core` a test enforces this
+(`errors_never_carry_the_addon_address`), and the fixture-based test client holds
+the same line as the real one — it says only "no fixture recorded for this
+request".
