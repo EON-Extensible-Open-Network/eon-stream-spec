@@ -16,11 +16,11 @@
       "pattern": "^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
     },
     "fontFamily": {
-      "description": "A family name, not a source. The interface interpolates this into a stylesheet, which is where a theme would otherwise become CSS injection — so url(), @import, braces, semicolons and quotes are all refused. A real family name needs none of them.",
+      "description": "A family name, not a source. The interface interpolates this into a stylesheet, which is where a theme would otherwise become CSS injection -- so url(), @import, braces, semicolons, slashes and quotes are all refused. A real family name needs none of them. The excluded set matches validate_font_family in eon-stream-core character for character, including the control ranges: a schema and an implementation that disagree produce a document that validates and is then refused.",
       "type": "string",
       "minLength": 1,
       "maxLength": 64,
-      "pattern": "^[^;{}()@<>/\\\\\\\"'\\x00-\\x1f]+$"
+      "pattern": "^[^;{}()@<>/\\\\\"'\\x00-\\x1f\\x7f-\\u009f]+$"
     }
   },
   "properties": {
