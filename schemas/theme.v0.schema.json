@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.eonstream.org/schemas/theme.v0.schema.json",
+  "title": "EON Stream theme document (v0 — UNSTABLE)",
+  "description": "What a declarative theme module's entry document contains: colour, type and spacing, and nothing else. This is madde 4's hard boundary expressed as a schema — a theme carries no code, ever. Every key is known and every value is a constrained type, so there is nowhere to put something a reader would skip over. v0 is explicitly unstable.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "base"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "color": {
+      "description": "sRGB hex: #rgb, #rgba, #rrggbb or #rrggbbaa. Hex only — named colours and rgb() notation are deliberately absent, so one colour has one spelling and a theme document stays comparable with itself.",
+      "type": "string",
+      "pattern": "^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "fontFamily": {
+      "description": "A family name, not a source. The interface interpolates this into a stylesheet, which is where a theme would otherwise become CSS injection — so url(), @import, braces, semicolons and quotes are all refused. A real family name needs none of them.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[^;{}()@<>/\\\\\\\"'\\x00-\\x1f]+$"
+    }
+  },
+  "properties": {
+    "schemaVersion": {
+      "const": 0
+    },
+    "base": {
+      "description": "Which built-in palette fills in what this document does not set. Stated rather than inferred: a theme that sets only an accent colour has to say whether the rest comes out dark or light, and guessing from the one colour given is how black text ends up on a black background.",
+      "enum": [
+        "dark",
+        "light"
+      ]
+    },
+    "colors": {
+      "description": "Colour overrides, by role. A closed set, which is what makes a theme portable: an interface knows every token it can be handed and a theme knows every token it can set.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "$ref": "#/$defs/color"
+        },
+        "surface": {
+          "$ref": "#/$defs/color"
+        },
+        "surfaceVariant": {
+          "$ref": "#/$defs/color"
+        },
+        "text": {
+          "$ref": "#/$defs/color"
+        },
+        "textMuted": {
+          "$ref": "#/$defs/color"
+        },
+        "accent": {
+          "$ref": "#/$defs/color"
+        },
+        "accentText": {
+          "$ref": "#/$defs/color"
+        },
+        "border": {
+          "$ref": "#/$defs/color"
+        },
+        "danger": {
+          "$ref": "#/$defs/color"
+        },
+        "dangerText": {
+          "$ref": "#/$defs/color"
+        },
+        "warning": {
+          "$ref": "#/$defs/color"
+        },
+        "success": {
+          "$ref": "#/$defs/color"
+        },
+        "focus": {
+          "description": "The focus ring. Separate from the accent because a focus indicator carries its own contrast requirement (madde 35).",
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sans": {
+          "$ref": "#/$defs/fontFamily"
+        },
+        "mono": {
+          "$ref": "#/$defs/fontFamily"
+        },
+        "baseSize": {
+          "description": "Base type size in CSS pixels. Bounded, because a theme that sets 2px text is an accessibility failure however it was meant.",
+          "type": "number",
+          "minimum": 10,
+          "maximum": 32
+        },
+        "scale": {
+          "description": "Ratio between steps of the type scale.",
+          "type": "number",
+          "minimum": 1.05,
+          "maximum": 2
+        }
+      }
+    },
+    "radius": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "small": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "medium": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "large": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        }
+      }
+    },
+    "spacing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "description": "Base spacing unit in CSS pixels; every gap is a multiple of it.",
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 16
+        }
+      }
+    }
+  }
+}

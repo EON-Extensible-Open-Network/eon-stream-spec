@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.eonstream.org/schemas/revocation-list.v0.schema.json",
+  "title": "EON Stream revocation list (v0 — UNSTABLE)",
+  "description": "A signed statement of which module versions and which signing keys must no longer be trusted. Revocation is listed before signing in docs/signing-and-revocation.md for a reason: signing without revocation only proves who shipped the malicious version, it does not stop it. v0 is explicitly unstable.",
+  "type": "object",
+  "required": ["schemaVersion", "issuedAt", "nextUpdate"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "description": "Version of THIS schema the document is written against.",
+      "const": 0
+    },
+    "issuedAt": {
+      "description": "When this list was issued. Also acts as its version: a client refuses a list whose issuedAt is not strictly newer than the one it holds, because replaying yesterday's list is the same attack as blocking today's.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "nextUpdate": {
+      "description": "When a client should have a newer list. Past this the list is stale and the client says so — but it keeps applying it. Falling back to 'nothing is revoked' would mean an attacker who can block a network request can un-revoke.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "revoked": {
+      "description": "Revoked module versions. Version-scoped, not module-scoped: a single bad release should not destroy a maintainer's project.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["id", "versions", "reason", "revokedAt"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "Identifier of the revoked module, as in its manifest.",
+            "type": "string",
+            "maxLength": 128
+          },
+          "versions": {
+            "description": "Which versions, in npm range syntax. A bare version pins exactly that one. Note the edge semantics: '<1.5.0' covers pre-releases below 1.5.0, while '>=1.0.0 <1.5.0' excludes 1.0.0-alpha because semver orders it below 1.0.0 — so 'everything before the fix' is written as the upper bound alone.",
+            "type": "string",
+            "maxLength": 128,
+            "examples": ["1.4.2", "<1.5.0", ">=1.0.0 <1.4.3"]
+          },
+          "reason": {
+            "description": "Enumerated, not free text, so a client can treat malicious-code differently from publisher-request — and so this list cannot become a channel for arbitrary prose shown to users.",
+            "enum": [
+              "malicious-code",
+              "key-compromise",
+              "security-vulnerability",
+              "license-violation",
+              "legal-order",
+              "publisher-request"
+            ]
+          },
+          "revokedAt": { "type": "string", "format": "date-time" },
+          "advisory": {
+            "description": "Where a person can read the detail. A revoked module is disabled and reported with this link, never quietly removed: quiet removal teaches users to distrust the updater.",
+            "type": "string",
+            "format": "uri",
+            "maxLength": 512
+          }
+        }
+      }
+    },
+    "revokedKeys": {
+      "description": "Revoked signing keys. Revoking a key revokes everything it signed, unless a newer valid signature exists.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["keyId", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "keyId": { "type": "string", "maxLength": 64 },
+          "reason": {
+            "enum": [
+              "malicious-code",
+              "key-compromise",
+              "security-vulnerability",
+              "license-violation",
+              "legal-order",
+              "publisher-request"
+            ]
+          },
+          "advisory": { "type": "string", "format": "uri", "maxLength": 512 }
+        }
+      }
+    },
+    "signature": {
+      "description": "Detached signature over this document with the signature member removed — the only thing 'detached' can mean for a document carrying its own signature. The subject is { id: 'org.eon.stream.revocation', version: <issuedAt>, sha256: <hash of the unsigned document> }, which is what makes one list's signature non-transferable to another. Signed with the release key, so a revocation can be published without reaching for the module key.",
+      "type": ["object", "null"],
+      "required": ["algorithm", "keyId", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": { "enum": ["ed25519"] },
+        "keyId": { "type": "string", "maxLength": 64 },
+        "value": { "type": "string", "contentEncoding": "base64" },
+        "signedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

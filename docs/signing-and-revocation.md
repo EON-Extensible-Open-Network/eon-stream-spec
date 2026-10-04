@@ -56,9 +56,37 @@ Ed25519: small, fast, no parameter choices to get wrong.
 therefore never transferable to another version - which is what makes per-version
 revocation possible.
 
-Canonical serialisation for the signed bytes is an open question (leading candidate: JCS,
-RFC 8785). It must be pinned before anything is signed for real; two implementations
-disagreeing on byte order produce signatures that verify in one client and fail in another.
+### Canonical serialisation: JCS, pinned
+
+**Decided.** The signed bytes are the **JCS (RFC 8785) serialisation of the `subject`
+object** - members sorted by key, no insignificant whitespace, minimal string escapes,
+non-ASCII as UTF-8 rather than `\u` escapes.
+
+This was open, with JCS as the leading candidate and a warning that leaving it open past
+the first real signature produces signatures that verify in one client and fail in another.
+It is pinned now, before any key exists, because that is the cheapest moment to do it.
+
+For this object the general problem does not arise. The subject is three string members and
+nothing else, so there are no numbers to format and no containers to nest - which is the
+reason the subject is fixed by this contract rather than left open-ended. The canonical form
+is therefore exactly:
+
+```
+{"id":"<id>","sha256":"<64 hex>","version":"<version>"}
+```
+
+`id` < `sha256` < `version` by code unit, which is the order shown. Any client can produce
+those bytes with string concatenation, and two independent implementations cannot disagree
+about them.
+
+**The verifier never reads the subject out of the envelope.** It reconstructs it from the
+manifest it parsed and the hash it computed itself, so a forged subject field has nothing to
+attach to.
+
+For a document that carries its own signature - a revocation list, a release manifest - the
+hashed bytes are **the document with the `signature` member removed**, which is the only
+thing "detached" can mean there. `version` is then the document's own ordering field:
+`issuedAt` for a revocation list, `version` for a release manifest.
 
 ## Revocation
 
@@ -110,8 +138,41 @@ written to the moderation audit log (madde 6), including who issued it.
 | Blocking revocation delivery | last-known list, `nextUpdate` staleness warning |
 | Edu build loading a non-Edu module | separate Edu key, enforced by the module manager |
 
+## Rules a schema cannot state
+
+JSON Schema compares a field against a constant, not against another field. These rules are
+therefore **implementation requirements**, verified by the client and by the test suites, and
+a document that breaks one is schema-valid and still refused:
+
+| Rule | Where it bites |
+|---|---|
+| `nextUpdate` must be strictly after `issuedAt` | otherwise a list is stale the moment it is issued |
+| an offered revocation list's `issuedAt` must be strictly after the held one's | replaying yesterday's list is the same attack as blocking today's |
+| a key's `notAfter` must be after its `notBefore` | an inverted window is not a window |
+| an offered release version must be *newer* than the running one | a downgrade reintroduces a patched vulnerability (madde 39) |
+| an offered module version must be newer than the installed one | the same, for modules |
+| the subject's `sha256` must equal the hash the client computed itself | a hash taken from the document proves nothing |
+
+The last one is worth saying twice: a checksum published beside the file it describes proves
+only that nobody corrupted it in transit.
+
+## Current state: no keys exist
+
+No key in this hierarchy has been generated. Custody belongs to a legal entity that does not
+exist yet (madde 30), and minting a root key for one person to hold on a laptop in the
+meantime would be worse than having none - it would produce signatures that look like the
+real thing.
+
+So every build ships with an **empty trust set**, and an empty trust set installs nothing.
+That is the designed behaviour, and the client says so rather than failing obscurely.
+
+A client reads its trust set from `eon-trust.json` beside the executable. That is also the
+mechanism an institution uses for its own key: anyone can put a public key there and trust it
+on their own machine, which is how the chain is exercised end to end today. It is a statement
+of what one machine trusts, not a development backdoor - there is no flag that skips
+verification.
+
 ## To be written
 
-- Canonical serialisation decision (JCS or an explicit alternative).
 - Transparency-log style append-only record of what was signed - useful, not yet scoped.
 - Institution key enrolment and recovery when a school loses its key.

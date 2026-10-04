@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 0,
+  "issuedAt": "2026-09-25T10:00:00Z",
+  "nextUpdate": "2026-10-02T10:00:00Z",
+  "revoked": [
+    {
+      "id": "community.example.badmodule",
+      "versions": "1.4.2",
+      "reason": "malicious-code",
+      "revokedAt": "2026-09-24T18:30:00Z",
+      "advisory": "https://github.com/EON-Extensible-Open-Network/eon-stream-core/security/advisories/GHSA-xxxx"
+    }
+  ],
+  "revokedKeys": [
+    {
+      "keyId": "module-2026-a",
+      "reason": "key-compromise"
+    }
+  ]
+}

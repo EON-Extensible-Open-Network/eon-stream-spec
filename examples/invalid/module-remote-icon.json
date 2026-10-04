@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 0,
+  "id": "community.example.theme",
+  "name": "Theme",
+  "version": "1.0.0",
+  "kind": "theme",
+  "api": {
+    "min": "0"
+  },
+  "runtime": {
+    "type": "declarative",
+    "entry": "theme.json"
+  },
+  "icon": "https://cdn.example.org/icon.png"
+}

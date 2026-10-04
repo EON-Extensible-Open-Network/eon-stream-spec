@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 0,
+  "base": "dark",
+  "onLoad": "fetch('http://example.org')"
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 0,
+  "keys": [
+    {
+      "keyId": "release-2026-a",
+      "purpose": "release",
+      "publicKey": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+      "notBefore": "2026-01-01T00:00:00Z",
+      "notAfter": "2027-01-01T00:00:00Z",
+      "comment": "example only -- no project keys exist yet (madde 30)"
+    },
+    {
+      "keyId": "module-2026-a",
+      "purpose": "module",
+      "publicKey": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+      "notBefore": "2026-01-01T00:00:00Z",
+      "notAfter": "2027-01-01T00:00:00Z"
+    }
+  ]
+}

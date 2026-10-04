@@ -29,6 +29,10 @@ Nothing in this repository executes. It is schemas, prose, and examples.
 | `schemas/addon-manifest.v0.schema.json` | Remote addon manifest — Stremio-compatible plus EON Stream extensions |
 | `schemas/module-manifest.v0.schema.json` | EON Stream module manifest: kind, dependencies, permissions, signature |
 | `schemas/package.v0.schema.json` | Material package descriptor, incl. `mirrors` (web seed) |
+| `schemas/revocation-list.v0.schema.json` | Signed list of revoked module versions and signing keys |
+| `schemas/release-manifest.v0.schema.json` | Signed release description: version, tag, artefacts, hashes |
+| `schemas/theme.v0.schema.json` | Declarative theme document — colour, type, spacing, and no code |
+| `schemas/trust-set.v0.schema.json` | The signing keys a build trusts, and for how long |
 | `docs/addon-protocol.md` | The HTTP endpoints, request and response shapes, error handling |
 | `docs/module-abi.md` | The module boundary — also the boundary named in the GPL exception |
 | `docs/package-format.md` | Container layout, hierarchy, distribution, offline guarantees |

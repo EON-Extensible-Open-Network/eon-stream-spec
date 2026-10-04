@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 0,
+  "keys": [
+    {
+      "keyId": "k",
+      "purpose": "module",
+      "publicKey": "short",
+      "notBefore": "2026-01-01T00:00:00Z",
+      "notAfter": "2027-01-01T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.eonstream.org/schemas/release-manifest.v0.schema.json",
+  "title": "EON Stream release manifest (v0 — UNSTABLE)",
+  "description": "A signed description of one release: which version, which files, and what each file hashes to. What the updater reads. v0 is explicitly unstable.",
+  "type": "object",
+  "required": ["schemaVersion", "product", "channel", "version", "tag", "releasedAt", "artifacts"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 0 },
+    "product": {
+      "description": "Which product this release is of. A build never updates itself from the other product's manifest.",
+      "enum": ["eon-stream", "eon-edu"]
+    },
+    "channel": {
+      "description": "Which release line. The whole alpha runs on 'alpha'.",
+      "enum": ["stable", "alpha"]
+    },
+    "version": {
+      "description": "Three-component semantic version, which is what Cargo requires and therefore what the binary reports.",
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-.]+)?$",
+      "examples": ["0.12.0-alpha", "1.0.0"]
+    },
+    "tag": {
+      "description": "The tag as published, which during the alpha is NOT the version: tag 'v0.12' carries version '0.12.0-alpha'. Tags count the digits after the dot as an alpha counter with the trailing zero dropped, so v0.19 is the twentieth alpha and is followed by v0.2. Carried separately because it is the name a person sees on the releases page.",
+      "type": "string",
+      "maxLength": 64,
+      "examples": ["v0.12", "v1"]
+    },
+    "releasedAt": {
+      "description": "When it was published. This is what orders the alpha line: semver reads 0.19.0 as ahead of 0.2.0 while v0.2 is in fact the later build, so an updater that compared versions alone would call the newer build a downgrade and never update again.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "notesUrl": { "type": "string", "format": "uri", "maxLength": 512 },
+    "artifacts": {
+      "description": "The downloadable files. A release with nothing for the running platform is reported as such rather than as 'up to date'.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["platform", "arch", "filename", "size", "sha256", "url"],
+        "additionalProperties": false,
+        "properties": {
+          "platform": { "enum": ["windows", "linux", "macos", "android"] },
+          "arch": { "enum": ["x86_64", "aarch64"] },
+          "filename": {
+            "description": "A bare file name with no path. The client joins this onto a directory, so a separator or '..' in it would write outside that directory.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[^/\\\\:\\u0000.][^/\\\\:\\u0000]*$"
+          },
+          "size": {
+            "description": "Size in bytes. Checked alongside the hash, so a truncated download is reported as truncated rather than as a hash mismatch — almost every size mismatch is the former and almost no hash mismatch is.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "sha256": {
+            "description": "Lowercase hex SHA-256 of the file. This is the hash that counts: a checksum published next to the file it describes proves only that nobody corrupted it in transit, while this one is covered by the manifest's signature.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "url": {
+            "description": "HTTPS only. The signature is the real protection, but there is no reason to hand someone on the path the attempt.",
+            "type": "string",
+            "pattern": "^https://",
+            "maxLength": 1024
+          }
+        }
+      }
+    },
+    "signature": {
+      "description": "Detached signature over this document with the signature member removed. The subject is { id: <product>, version: <version>, sha256: <hash of the unsigned document> }. Signed with the release key; an Edu build accepts only the Edu key (madde 22).",
+      "type": ["object", "null"],
+      "required": ["algorithm", "keyId", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": { "enum": ["ed25519"] },
+        "keyId": { "type": "string", "maxLength": 64 },
+        "value": { "type": "string", "contentEncoding": "base64" },
+        "signedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

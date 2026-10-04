@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 0,
+  "issuedAt": "2026-09-25T10:00:00Z",
+  "nextUpdate": "2026-10-02T10:00:00Z",
+  "revoked": [
+    {
+      "id": "x.y",
+      "versions": "1.0.0",
+      "reason": "we felt like it",
+      "revokedAt": "2026-09-24T18:30:00Z"
+    }
+  ]
+}

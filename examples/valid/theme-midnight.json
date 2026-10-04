@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 0,
+  "base": "dark",
+  "colors": {
+    "accent": "#7ad7ff",
+    "accentText": "#061018",
+    "background": "#0b0d11"
+  },
+  "typography": {
+    "sans": "Inter",
+    "baseSize": 15.0
+  },
+  "radius": {
+    "small": 3,
+    "medium": 10,
+    "large": 18
+  },
+  "spacing": {
+    "unit": 4
+  }
+}

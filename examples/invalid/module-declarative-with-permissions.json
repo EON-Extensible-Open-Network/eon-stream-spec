@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 0,
+  "id": "community.example.tool",
+  "name": "Tool",
+  "version": "1.0.0",
+  "kind": "ui",
+  "api": {
+    "min": "0"
+  },
+  "runtime": {
+    "type": "declarative",
+    "entry": "tool.json"
+  },
+  "permissions": [
+    "net.fetch"
+  ]
+}

@@ -17,6 +17,10 @@ const schemas = {
   addon: "schemas/addon-manifest.v0.schema.json",
   module: "schemas/module-manifest.v0.schema.json",
   package: "schemas/package.v0.schema.json",
+  revocation: "schemas/revocation-list.v0.schema.json",
+  release: "schemas/release-manifest.v0.schema.json",
+  theme: "schemas/theme.v0.schema.json",
+  trust: "schemas/trust-set.v0.schema.json",
 };
 
 const validators = Object.fromEntries(
@@ -31,7 +35,9 @@ function kindOf(file) {
   const prefix = basename(file).split("-")[0];
   if (!(prefix in validators)) {
     throw new Error(
-      `${file}: cannot tell which schema applies. Name it <addon|module|package>-*.json`
+      `${file}: cannot tell which schema applies. Name it <${Object.keys(
+        validators
+      ).join("|")}>-*.json`
     );
   }
   return prefix;
