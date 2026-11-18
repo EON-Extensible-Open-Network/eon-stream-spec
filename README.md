@@ -39,6 +39,7 @@ Nothing in this repository executes. It is schemas, prose, and examples.
 | `docs/signing-and-revocation.md` | Key hierarchy, signature envelope, revocation list |
 | `docs/versioning.md` | How these contracts are versioned and what breaking means |
 | `docs/compatibility.md` | Which Stremio addons work, which cannot, and why |
+| `docs/community-api.md` | Accounts, scores, reviews and friends — a draft no server implements yet (madde 7, 30, 31) |
 | `examples/` | Valid and deliberately invalid documents, used as CI fixtures |
 
 ## Stability

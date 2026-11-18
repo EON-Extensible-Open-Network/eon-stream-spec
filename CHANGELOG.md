@@ -7,6 +7,10 @@ Versioning: see [`docs/versioning.md`](docs/versioning.md). Contracts are at `v0
 ## [Unreleased]
 
 ### Added
+- `docs/community-api.md` - a draft contract for accounts, scores out of ten, reviews,
+  friends and reports, with export and deletion for every account. Implemented by no
+  server: running one waits on madde 30's Faz L1 gate. EON Stream's client stays dormant
+  until a viewer enters a server address.
 - `addon-manifest.v0.schema.json` - Stremio-compatible manifest plus the reserved `eon`
   extension key (`minApi`, `maxApi`, `mirrors`, `license`, `price`, `signature`,
   `accessibility`, `education`).
