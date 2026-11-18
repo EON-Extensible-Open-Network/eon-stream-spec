@@ -6,11 +6,26 @@ Versioning: see [`docs/versioning.md`](docs/versioning.md). Contracts are at `v0
 
 ## [Unreleased]
 
+### Changed - the community API is a whole film database
+- `docs/community-api.md` grows from scores, reviews and friends to what a film database
+  lives on: helpful votes and spoiler marks on reviews; facts for titles and people (trivia,
+  goofs, quotes, soundtracks, locations and more) with interest votes; people's pages and
+  filmographies; the parental guide; skip markers for intros, recaps, credits and previews;
+  lists and a watchlist; top, bottom and trending charts; "more like this" and
+  recommendations computed from scores; awards; polls; blocking; notifications; and the
+  moderation that all of it needs - a queue, decisions with notes, a public log for
+  moderators, suspensions, roles, and appeals decided by a different moderator.
+  **Breaking**: `GET /v0/top/{type}` and `GET /v0/titles/.../reviews` now answer
+  `{items|reviews, more}` objects; `POST /v0/sessions` adds `role`; a report needs a reason
+  of three characters or more.
+- It now has an open implementation,
+  [`eon-stream-community`](https://github.com/EON-Extensible-Open-Network/eon-stream-community)
+  (AGPL-3.0). The project still runs no server: madde 30's Faz L1 gate.
+
 ### Added
 - `docs/community-api.md` - a draft contract for accounts, scores out of ten, reviews,
-  friends and reports, with export and deletion for every account. Implemented by no
-  server: running one waits on madde 30's Faz L1 gate. EON Stream's client stays dormant
-  until a viewer enters a server address.
+  friends and reports, with export and deletion for every account. EON Stream's client
+  stays dormant until a viewer enters a server address.
 - `addon-manifest.v0.schema.json` - Stremio-compatible manifest plus the reserved `eon`
   extension key (`minApi`, `maxApi`, `mirrors`, `license`, `price`, `signature`,
   `accessibility`, `education`).
