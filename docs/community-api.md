@@ -63,6 +63,11 @@ up to 5000 characters, and `title` is `{name, year, poster}` as the client had i
 | `DELETE /v0/ratings/{type}/{id}` | ✓ | – | `204` |
 | `GET /v0/titles/{type}/{id}` | – | – | `{average, count, histogram, reviews}` |
 | `GET /v0/titles/{type}/{id}?page=N` | – | – | the next page of `reviews` |
+| `GET /v0/top/{type}?page=N` | – | – | titles ranked by score: `{type, id, title, average, count}`, twenty per page |
+
+`top` lists only titles with at least five scores and ranks them by a Bayesian average
+(the mean pulled towards the site-wide mean by a weight of five scores), so that a title
+two people loved does not outrank one two thousand people rated nearly as high.
 
 `histogram` is ten counts, for scores 1 to 10. `reviews` are `{username, score, review, at}`,
 newest first, twenty per page, only those with text. `average` is null below three scores,
