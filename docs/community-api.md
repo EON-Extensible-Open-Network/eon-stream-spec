@@ -66,6 +66,7 @@ needs.
 |---|---|---|---|
 | `POST /v0/accounts` | – | `{username, email, password}` | `201 {username}`; `409 taken` |
 | `POST /v0/sessions` | – | `{login, password}` — `login` is a username or e-mail | `200 {token, username, role, expires_at}`; `401 unauthorised` |
+| `POST /v0/sessions/account` | – | `{assertion}` — from the viewer's EON Account server | `200 {token, username, role, expires_at}`; `401 unauthorised`; `403 forbidden` if this server accepts no EON Account |
 | `DELETE /v0/sessions` | ✓ | – | `204` |
 | `GET /v0/me` | ✓ | – | `{username, email, role, bio, created_at}` |
 | `PUT /v0/me` | ✓ | `{bio}` — up to 300 characters, or null | `200` as `GET` |
@@ -75,6 +76,18 @@ needs.
 | `GET /v0/me/notifications` | ✓ | – | `{items, unread}` — `{id, kind, body, at, read}`, newest fifty |
 | `POST /v0/me/notifications` | ✓ | `{read: [id…]}` or `{read: "all"}` | `204` |
 | `GET /v0/me/recommendations` | ✓ | – | up to forty `{type, id, title, score}` (see "More like this") |
+
+**Signing in with EON Account (v0.1).** A server may accept assertions from one or more
+EON Account servers (`eon-account-spec`, plan madde 46). The viewer's application asks its
+account server for an assertion addressed to this server's origin, then sends it here.
+
+- **Checking.** The server checks the assertion against the account server's key, which
+  the operator configures. No request leaves this server to do it.
+- **The account here.** The server keys the account on the assertion's `sub`. That is a
+  pseudonym the account server makes for this server alone. The account has no password
+  and no e-mail address here.
+- **The username.** When the viewer shared their EON username, it becomes the username
+  here, if that is free. Otherwise the server makes one.
 
 A password is at least 10 characters and is stored only as a salted, slow hash (Argon2id
 in the reference server). A session lasts thirty days. Notification kinds: `friend`
